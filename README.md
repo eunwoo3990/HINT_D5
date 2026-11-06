@@ -1,18 +1,19 @@
-# Material Ops — AI 운영계획 검토 프로토타입
+# Material Ops — 자재운반 설비 관리 프로토타입
 
-Hyundai Motor material-management workflow concept demo.
+자재관리 직무 중 **3. 자재운반 설비 관리하기**의 3.1(공정별·품목별 자재 입고/출고/운반 설비 특성표 작성)과 3.2(설비 운용계획 수립)를 지원하는 시연용 웹 앱입니다.
 
-## Included
-- 10 synthetic weekly operating plans
-- Five review dimensions: production alignment, material procurement, inbound logistics capacity, inventory transactions, equipment specifications
-- Dashboard filters and risk overview
-- Per-plan review details, evidence references, action recommendations, and report preview
+## 포함 기능
+- 10건의 가상 자재운반 설비 운영계획
+- 설비 특성표 검토: 대상 자재, 입고·출고·운반 흐름, 설비 종류, 주요 제원, 적재·견인 하중, 처리능력
+- 운용계획 검토: 설비 수량·배치, 시간대별 배차, 공정 동선, 피크 대응, 예비 설비
+- 안전·점검·정비 조건 확인
+- 항목별 승인/보류/불가 판정, 근거, 보완 조치 및 보고서 미리보기
 
-## Run locally
+## 로컬 실행
 ```bash
 npm install
 npm run dev
 ```
 
-## Important
-All records and review results are synthetic demo data. The current prototype does not parse uploaded documents, call an LLM, connect to ERP/WMS/MES, or record binding approval decisions. The upload and decision controls are demonstration placeholders.
+## 범위와 한계
+데이터와 판정은 모두 가상 시연용입니다. 실제 설비 제원·법정 안전기준·현장 물동량에 근거한 검증이 필요합니다. 현재 문서 업로드 파싱, LLM 호출, ERP/WMS/MES 연동, 실제 승인 기록 기능은 구현되어 있지 않습니다.
