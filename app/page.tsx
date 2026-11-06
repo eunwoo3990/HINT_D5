@@ -14,10 +14,31 @@ export default function Home() {
   const [expanded,setExpanded] = useState("1");
   const [toast,setToast] = useState("");
   const [view,setView] = useState("검토 대시보드");
+  const [analysisInput,setAnalysisInput] = useState("");
+  const [analysisResult,setAnalysisResult] = useState("");
+  const [analysisError,setAnalysisError] = useState("");
+  const [analysisBusy,setAnalysisBusy] = useState(false);
+  const [analysisModel,setAnalysisModel] = useState("");
 
   const filtered = useMemo(()=>plans.filter(p=>(filter==="전체" || p.status===filter) && (p.title+p.id+p.plant+p.line).toLowerCase().includes(search.toLowerCase())),[filter,search]);
   const counts = {all:plans.length,approved:plans.filter(p=>p.status==="승인").length,hold:plans.filter(p=>p.status==="보류").length,rejected:plans.filter(p=>p.status==="불가").length};
   const notify = (message:string) => { setToast(message); window.setTimeout(()=>setToast(""),2800); };
+  const runGeminiAnalysis = async () => {
+    setAnalysisError(""); setAnalysisResult(""); setAnalysisBusy(true);
+    try {
+      const response = await fetch("/api/analyze", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({content:analysisInput}) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "분석 요청에 실패했습니다.");
+      setAnalysisResult(data.analysis); setAnalysisModel(data.model || "Gemini");
+    } catch (error) {
+      setAnalysisError(error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.");
+    } finally { setAnalysisBusy(false); }
+  };
+  const loadTextFile = async (file?:File) => {
+    if (!file) return;
+    setAnalysisInput((await file.text()).slice(0,24000));
+    setAnalysisError(""); setAnalysisResult("");
+  };
   const decide = (label:string) => { notify(`'${selected?.id}' ${label} 처리 의견이 기록되었습니다. (시연용)`); };
 
   return <div className="app-shell">
@@ -38,6 +59,17 @@ export default function Home() {
       <header className="topbar"><div className="crumb">MATERIAL OPS　/　<b>{selected ? "자재운반 설비 상세 검토" : view}</b></div><div className="top-actions"><span className="env-pill">DEMO ENVIRONMENT</span><Bell size={17} color="#8793a3"/></div></header>
       <div className="content">
         {!selected ? <>
+          <div className="panel" style={{marginBottom:18}}>
+            <div className="panel-head"><div><div className="panel-title">Gemini AI 실자료 분석</div><div className="panel-sub">자재운반 설비 특성표·운용계획서 내용을 입력하거나 텍스트 파일을 불러와 실제 Gemini API로 분석합니다.</div></div><span className="env-pill">GEMINI FREE TIER</span></div>
+            <textarea value={analysisInput} onChange={e=>setAnalysisInput(e.target.value)} placeholder="설비 특성표 또는 운용계획서의 텍스트를 붙여넣으세요. 자재명, 운반 경로, 설비 종류, 정격하중, 처리능력, 대수, 배차 시간, 점검·정비 조건..." rows={7} style={{width:"100%",border:"1px solid #dbe2ea",borderRadius:8,padding:12,fontSize:12,lineHeight:1.6,resize:"vertical",fontFamily:"inherit"}} />
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,flexWrap:"wrap",marginTop:10}}>
+              <label className="secondary-btn" style={{display:"inline-flex",alignItems:"center",gap:7,cursor:"pointer"}}><Upload size={14}/> 텍스트 파일 불러오기<input type="file" accept=".txt,.md,.csv,text/plain,text/markdown,text/csv" onChange={e=>loadTextFile(e.target.files?.[0])} style={{display:"none"}}/></label>
+              <div style={{display:"flex",alignItems:"center",gap:12}}><span style={{fontSize:10,color:"#8793a3"}}>{analysisInput.length.toLocaleString()} / 24,000자</span><button className="primary-btn" disabled={!analysisInput.trim() || analysisBusy} onClick={runGeminiAnalysis}>{analysisBusy ? "Gemini 분석 중..." : "실제 Gemini 분석 실행"}</button></div>
+            </div>
+            {analysisError && <div className="callout warn" style={{marginTop:12}}>{analysisError}</div>}
+            {analysisResult && <div style={{marginTop:16,borderTop:"1px solid #e8edf3",paddingTop:14}}><div className="panel-head"><div><div className="panel-title">실제 API 분석 결과</div><div className="panel-sub">모델: {analysisModel} · Gemini 응답 원문</div></div><button className="secondary-btn" onClick={()=>navigator.clipboard.writeText(analysisResult).then(()=>notify("분석 결과를 복사했습니다."))}>결과 복사</button></div><pre style={{whiteSpace:"pre-wrap",overflowWrap:"anywhere",fontFamily:"inherit",fontSize:12,lineHeight:1.8,color:"#344054",background:"#f8fafc",borderRadius:8,padding:14}}>{analysisResult}</pre></div>}
+            <div style={{fontSize:10,color:"#8793a3",marginTop:10}}>무료 한도 초과 시 요청을 차단하며 유료 API로 자동 전환하지 않습니다. TXT·MD·CSV 텍스트 입력을 지원합니다. 기밀 자료는 무료 등급 데이터 사용 조건을 확인한 뒤 입력하세요.</div>
+          </div>
           <div className="page-heading"><div><div className="eyebrow">AI-ASSISTED MATERIAL CONTROL</div><h1>자재운반 설비 운용계획 검토</h1><div className="subtitle">공정별 자재 이동 흐름과 운반설비 특성표를 바탕으로 설비 배치·배차·운용계획의 적정성을 검토합니다.</div></div><button className="primary-btn" onClick={()=>notify("보고서 업로드는 다음 단계에서 파일 분석 API와 연결할 예정입니다.")}><Upload size={15}/> 보고서 업로드</button></div>
           <div className="stats">
             <div className="stat-card"><div className="stat-label">전체 운영계획</div><div className="stat-value">{counts.all}<span style={{fontSize:12,color:"#8995a5",marginLeft:5}}>건</span></div><div className="stat-note">3.1 특성표 작성 · 3.2 운용계획 수립</div><div className="stat-icon" style={{background:"#edf2ff",color:"#315efb"}}><FileText size={17}/></div></div>
