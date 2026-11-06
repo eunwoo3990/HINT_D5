@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <style>
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { margin: 0; padding: 0; background-color: #f5f5f7; color: #1d1d1f; }
+    .container { max-width: 500px; margin: 0 auto; background: #fff; min-height: 100vh; display: flex; flex-direction: column; }
+    
+    /* 상단 메인 탭 nav */
+    .nav-tabs { display: flex; border-bottom: 1px solid #e5e5ea; background: #fafafa; }
+    .nav-tab { flex: 1; padding: 14px 0; text-align: center; font-size: 16px; font-weight: 600; color: #8e8e93; cursor: pointer; border-bottom: 2px solid transparent; }
+    .nav-tab.active { color: #007aff; border-bottom-color: #007aff; background: #fff; }
+
+    /* 서브 탭 nav */
+    .sub-tabs { display: flex; margin: 12px 16px 4px 16px; background: #eef0f2; border-radius: 8px; padding: 2px; }
+    .sub-tab { flex: 1; padding: 8px 0; text-align: center; font-size: 14px; font-weight: 600; color: #666; cursor: pointer; border-radius: 6px; }
+    .sub-tab.active { background: #fff; color: #007aff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+    .content-page { display: none; padding: 16px; flex: 1; }
+    .content-page.active { display: block; }
+    .sub-content { display: none; }
+    .sub-content.active { display: block; }
+
+    /* Form UI Components */
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; color: #3a3a3c; }
+    input[type="text"], input[type="number"], input[type="date"] {
+      width: 100%; padding: 12px; font-size: 16px; border: 1px solid #c7c7cc; border-radius: 8px; outline: none;
+    }
+    input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus { border-color: #007aff; }
+    .help-text { font-size: 12px; color: #8e8e93; margin-top: 4px; }
+    
+    /* Big Button Style */
+    .button-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .btn-select {
+      flex: 1 1 calc(33.33% - 6px); min-width: 80px; padding: 12px 6px; font-size: 14px; font-weight: 600;
+      border: 1px solid #c7c7cc; background: #fff; border-radius: 8px; cursor: pointer; text-align: center; color: #3a3a3c;
+    }
+    .btn-select.selected { background: #007aff; color: #fff; border-color: #007aff; }
+
+    .btn-submit {
+      width: 100%; padding: 14px; font-size: 16px; font-weight: 700; background: #007aff; color: #fff;
+      border: none; border-radius: 8px; cursor: pointer; margin-top: 8px;
+    }
+    .btn-submit:active { background: #0056b3; }
+
+    /* Alert / Message */
+    .msg-box { margin-top: 12px; padding: 10px 12px; border-radius: 8px; font-size: 14px; display: none; }
+    .msg-box.info { background: #e5f1ff; color: #0056b3; }
+    .msg-box.error { background: #ffe5e5; color: #c00; }
+
+    /* Dashboard Cards */
+    .card { background: #f9f9fb; border: 1px solid #e5e5ea; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .card-title { font-size: 14px; font-weight: 600; color: #8e8e93; margin-bottom: 8px; }
+    .big-value { font-size: 24px; font-weight: 700; color: #1d1d1f; }
+    
+    .look-box { text-align: center; padding: 24px 12px; background: #f0f7ff; border: 2px solid #007aff; border-radius: 12px; }
+    .look-main { font-size: 22px; font-weight: 800; color: #007aff; margin-bottom: 12px; }
+    .look-reason { font-size: 14px; color: #3a3a3c; margin-bottom: 8px; font-style: italic; }
+    .look-badge { display: inline-block; font-size: 12px; background: #e5e5ea; color: #555; padding: 4px 8px; border-radius: 4px; }
+
+    /* Closet Table */
+    .closet-group { margin-top: 16px; }
+    .closet-group-title { font-size: 14px; font-weight: bold; color: #007aff; border-bottom: 1px solid #007aff; padding-bottom: 4px; margin-bottom: 8px; }
+    .closet-item { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; border-bottom: 1px dashed #e5e5ea; }
+
+    footer { text-align: center; padding: 16px; font-size: 12px; color: #8e8e93; margin-top: auto; }
+    footer a { color: #8e8e93; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 메인 탭 -->
+    <div class="nav-tabs">
+      <div class="nav-tab active" onclick="switchMainTab('tab-input')">입력</div>
+      <div class="nav-tab" onclick="switchMainTab('tab-list')">목록</div>
+      <div class="nav-tab" onclick="switchMainTab('tab-summary')">요약</div>
+    </div>
+
+    <!-- 1. 입력 화면 -->
+    <div id="tab-input" class="content-page active">
+      <div class="sub-tabs">
+        <div class="sub-tab active" onclick="switchSubTab('sub-today')">오늘 기록</div>
+        <div class="sub-tab" onclick="switchSubTab('sub-add-cloth')">옷 추가</div>
+      </div>
+
+      <!-- 1-1) 오늘 기록 탭 -->
+      <div id="sub-today" class="sub-content active">
+        <form id="form-today" onsubmit="handleSaveToday(event)">
+          <div class="form-group">
+            <label>일정 제목</label>
+            <input type="text" id="today-title" placeholder="예: 학원 가기, 회사 출근">
+            <div class="help-text">이름이나 장소 같은 개인정보는 쓰지 마세요 (AI에 전달돼요)</div>
+          </div>
+          <div class="form-group">
+            <label>스타일</label>
+            <div class="button-group" id="group-today-style">
+              <button type="button" class="btn-select" onclick="selectBtn('group-today-style', '스포티')">스포티</button>
+              <button type="button" class="btn-select" onclick="selectBtn('group-today-style', '포멀')">포멀</button>
+              <button type="button" class="btn-select" onclick="selectBtn('group-today-style', '편하게')">편하게</button>
+              <button type="button" class="btn-select" onclick="selectBtn('group-today-style', '캐주얼')">캐주얼</button>
+              <button type="button" class="btn-select" onclick="selectBtn('group-today-style', '단정')">단정</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>날짜</label>
+            <input type="date" id="today-date">
+          </div>
+          <button type="submit" class="btn-submit">저장 및 추천 받기</button>
+        </form>
+        <div id="msg-today" class="msg-box"></div>
+      </div>
+
+      <!-- 1-2) 옷 추가 탭 -->
+      <div id="sub-add-cloth" class="sub-content">
+        <form id="form-cloth" onsubmit="handleAddCloth(event)">
+          <div class="form-group">
+            <label>옷 별칭</label>
+            <input type="text" id="cloth-name" placeholder="예: 회색 후드티">
+          </div>
+          <div class="form-group">
+            <label>종류</label>
+            <div class="button-group" id="group-cloth-type">
+              <button type="button" class="btn-select" onclick="selectBtn('group-cloth-type', '상의')">상의</button>
+              <button type="button" class="btn-select" onclick="selectBtn('group-cloth-type', '하의')">하의</button>
+              <button type="button" class="btn-select" onclick="selectBtn('group-cloth-type', '아우터')">아우터</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>스타일</label>
+            <div class="button-group" id="group-cloth-style">
+              <button type="button" class="btn-select" onclick="selectBtn('group-cloth-style', '스포티')">스포티</button>
+              <button type="button" class="btn-select" onclick="selectBtn('group-cloth-style', '포멀')">포멀</button>
+              <button type="button" class="btn-select" onclick="selectBtn('group-cloth-style', '편하게')">편하게</button>
+              <button type="button" class="btn-select" onclick="selectBtn('group-cloth-style', '캐주얼')">캐주얼</button>
+              <button type="button" class="btn-select" onclick="selectBtn('group-cloth-style', '단정')">단정</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>적정 기온 (℃)</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="number" id="cloth-min-temp" placeholder="최저 (예: 14)" step="0.5">
+              <input type="number" id="cloth-max-temp" placeholder="최고 (예: 20)" step="0.5">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>비·눈 올 때 입기</label>
+            <div class="button-group" id="group-cloth-rain">
+              <button type="button" class="btn-select" onclick="selectBtn('group-cloth-rain', '가능')">가능</button>
+              <button type="button" class="btn-select" onclick="selectBtn('group-cloth-rain', '불가')">불가</button>
+            </div>
+          </div>
+          <button type="submit" class="btn-submit">옷장 추가</button>
+        </form>
+        <div id="msg-cloth" class="msg-box"></div>
+
+        <!-- 옷장 목록 (조회 전용) -->
+        <div style="margin-top: 24px;">
+          <label>현재 옷장 목록</label>
+          <div id="closet-list-container">로딩 중...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 목록 화면 -->
+    <div id="tab-list" class="content-page">
+      <div class="card">
+        <div class="card-title" id="list-weather-date">오늘의 기상 정보</div>
+        <div class="big-value" id="list-weather-temp">--℃ / --℃</div>
+        <div style="margin-top:4px; font-size:16px; color:#555;" id="list-weather-cond">상태: --</div>
+      </div>
+      <div class="card">
+        <div class="card-title">오늘 기록의 추천 결과</div>
+        <div id="list-recommendation">
+          <div style="font-weight:600; font-size: 16px; color:#007aff;" id="list-rec-tops">상의: --</div>
+          <div style="font-weight:600; font-size: 16px; color:#007aff; margin-top:4px;" id="list-rec-bottoms">하의: --</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 요약 화면 -->
+    <div id="tab-summary" class="content-page">
+      <div class="card-title" style="margin-bottom:12px;">오늘 추천 룩</div>
+      <div class="look-box">
+        <div class="look-main" id="summary-look-pair">-- + --</div>
+        <div class="look-reason" id="summary-look-reason">입력 화면에서 오늘 기록을 저장해 주세요.</div>
+        <div class="look-badge" id="summary-look-method">추천 대기</div>
+      </div>
+    </div>
+
+    <!-- 푸터 -->
+    <footer>
+      <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Weather data by Open-Meteo</a>
+    </footer>
+  </div>
+
+  <script>
+    // 오늘 날짜 기본 세팅
+    document.getElementById('today-date').valueAsDate = new Date();
+
+    // 탭 전환 로직
+    function switchMainTab(tabId) {
+      document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.content-page').forEach(el => el.classList.remove('active'));
+      
+      event.target.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+
+      if (tabId === 'tab-list' || tabId === 'tab-summary') {
+        loadDashboardData();
+      }
+    }
+
+    function switchSubTab(subId) {
+      document.querySelectorAll('.sub-tab').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.sub-content').forEach(el => el.classList.remove('active'));
+      
+      event.target.classList.add('active');
+      document.getElementById(subId).classList.add('active');
+      
+      if (subId === 'sub-add-cloth') {
+        loadClosetList();
+      }
+    }
+
+    // 큰 버튼 선택 제어
+    function selectBtn(groupId, value) {
+      const group = document.getElementById(groupId);
+      group.querySelectorAll('.btn-select').forEach(btn => {
+        if (btn.textContent === value) {
+          btn.classList.add('selected');
+        } else {
+          btn.classList.remove('selected');
+        }
+      });
+    }
+
+    function getSelectedBtnValue(groupId) {
+      const selected = document.getElementById(groupId).querySelector('.btn-select.selected');
+      return selected ? selected.textContent : null;
+    }
+
+    // 메시지 표시 함수
+    function showMsg(elementId, text, isError = false) {
+      const el = document.getElementById(elementId);
+      el.textContent = text;
+      el.className = 'msg-box ' + (isError ? 'error' : 'info');
+      el.style.display = 'block';
+    }
+
+    // 오늘 기록 저장
+    function handleSaveToday(e) {
+      e.preventDefault();
+      const title = document.getElementById('today-title').value;
+      const style = getSelectedBtnValue('group-today-style');
+      const date = document.getElementById('today-date').value;
+
+      showMsg('msg-today', '추천 조합을 계산하고 있어요...');
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          if (res.success) {
+            showMsg('msg-today', '기록과 추천이 완료되었어요! [요약] 탭에서 확인하세요.');
+            updateSummaryUI(res.recommendation);
+          } else {
+            showMsg('msg-today', res.message, true);
+          }
+        })
+        .withFailureHandler(function(err) {
+          showMsg('msg-today', '저장 중 오류가 발생했습니다.', true);
+        })
+        .saveTodayRecord({ title: title, style: style, date: date });
+    }
+
+    // 옷 추가 저장
+    function handleAddCloth(e) {
+      e.preventDefault();
+      const name = document.getElementById('cloth-name').value;
+      const type = getSelectedBtnValue('group-cloth-type');
+      const style = getSelectedBtnValue('group-cloth-style');
+      const minTemp = document.getElementById('cloth-min-temp').value;
+      const maxTemp = document.getElementById('cloth-max-temp').value;
+      const rainable = getSelectedBtnValue('group-cloth-rain');
+
+      showMsg('msg-cloth', '옷장에 추가 중입니다...');
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          if (res.success) {
+            showMsg('msg-cloth', res.message);
+            renderCloset(res.closetList);
+            // 폼 초기화
+            document.getElementById('cloth-name').value = '';
+            document.getElementById('cloth-min-temp').value = '';
+            document.getElementById('cloth-max-temp').value = '';
+          } else {
+            showMsg('msg-cloth', res.message, true);
+          }
+        })
+        .withFailureHandler(function(err) {
+          showMsg('msg-cloth', '옷 추가 실패', true);
+        })
+        .addClothes({ name, type, style, minTemp, maxTemp, rainable });
+    }
+
+    // 옷장 목록 불러오기
+    function loadClosetList() {
+      google.script.run.withSuccessHandler(renderCloset).getClosetList();
+    }
+
+    function renderCloset(list) {
+      const container = document.getElementById('closet-list-container');
+      if (!list || list.length === 0) {
+        container.innerHTML = '<div style="font-size:13px; color:#8e8e93;">등록된 옷이 없습니다.</div>';
+        return;
+      }
+
+      const types = ['상의', '하의', '아우터'];
+      let html = '';
+
+      types.forEach(t => {
+        const filtered = list.filter(item => item.type === t);
+        if (filtered.length > 0) {
+          html += `<div class="closet-group"><div class="closet-group-title">${t}</div>`;
+          filtered.forEach(item => {
+            html += `
+              <div class="closet-item">
+                <span><strong>${item.name}</strong> (${item.style})</span>
+                <span>${item.minTemp} ~ ${item.maxTemp}℃</span>
+              </div>
+            `;
+          });
+          html += `</div>`;
+        }
+      });
+      container.innerHTML = html;
+    }
+
+    // 대시보드 (목록/요약) 불러오기
+    function loadDashboardData() {
+      google.script.run.withSuccessHandler(function(data) {
+        // 날씨 UI 업데이트
+        if (data.weather.success) {
+          document.getElementById('list-weather-date').textContent = `${data.weather.date} 기상 정보`;
+          document.getElementById('list-weather-temp').textContent = `${data.weather.minTemp}℃ / ${data.weather.maxTemp}℃`;
+          document.getElementById('list-weather-cond').textContent = `기상 상태: ${data.weather.condition}`;
+        } else {
+          document.getElementById('list-weather-temp').textContent = '날씨 정보 오류';
+          document.getElementById('list-weather-cond').textContent = data.weather.message;
+        }
+
+        // 최신 기록 UI 업데이트
+        if (data.latestRecord) {
+          document.getElementById('list-rec-tops').textContent = `상의: ${data.latestRecord.top}`;
+          document.getElementById('list-rec-bottoms').textContent = `하의: ${data.latestRecord.bottom}`;
+          
+          document.getElementById('summary-look-pair').textContent = `${data.latestRecord.top} + ${data.latestRecord.bottom}`;
+        }
+      }).getDashboardData();
+    }
+
+    function updateSummaryUI(rec) {
+      if (!rec) return;
+      if (rec.top === "맞는 옷 없음") {
+        document.getElementById('summary-look-pair').textContent = "맞는 옷 없음";
+      } else {
+        document.getElementById('summary-look-pair').textContent = `${rec.top} + ${rec.bottom}`;
+      }
+      document.getElementById('summary-look-reason').textContent = rec.reason;
+      document.getElementById('summary-look-method').textContent = rec.method;
+    }
+
+    // 최초 로드 시 실행
+    window.onload = function() {
+      google.script.run.setupSheet();
+    };
+  </script>
+</body>
+</html>
