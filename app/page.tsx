@@ -70,7 +70,7 @@ export default function Home() {
             {analysisResult && <div style={{marginTop:16,borderTop:"1px solid #e8edf3",paddingTop:14}}><div className="panel-head"><div><div className="panel-title">실제 API 분석 결과</div><div className="panel-sub">모델: {analysisModel} · Gemini 응답 원문</div></div><button className="secondary-btn" onClick={()=>navigator.clipboard.writeText(analysisResult).then(()=>notify("분석 결과를 복사했습니다."))}>결과 복사</button></div><pre style={{whiteSpace:"pre-wrap",overflowWrap:"anywhere",fontFamily:"inherit",fontSize:12,lineHeight:1.8,color:"#344054",background:"#f8fafc",borderRadius:8,padding:14}}>{analysisResult}</pre></div>}
             <div style={{fontSize:10,color:"#8793a3",marginTop:10}}>무료 한도 초과 시 요청을 차단하며 유료 API로 자동 전환하지 않습니다. TXT·MD·CSV 텍스트 입력을 지원합니다. 기밀 자료는 무료 등급 데이터 사용 조건을 확인한 뒤 입력하세요.</div>
           </div>
-          <div className="page-heading"><div><div className="eyebrow">AI-ASSISTED MATERIAL CONTROL</div><h1>자재운반 설비 운용계획 검토</h1><div className="subtitle">공정별 자재 이동 흐름과 운반설비 특성표를 바탕으로 설비 배치·배차·운용계획의 적정성을 검토합니다.</div></div><button className="primary-btn" onClick={()=>notify("보고서 업로드는 다음 단계에서 파일 분석 API와 연결할 예정입니다.")}><Upload size={15}/> 보고서 업로드</button></div>
+          <div className="page-heading"><div><div className="eyebrow">AI-ASSISTED MATERIAL CONTROL</div><h1>자재운반 설비 운용계획 검토</h1><div className="subtitle">공정별 자재 이동 흐름과 운반설비 특성표를 바탕으로 설비 배치·배차·운용계획의 적정성을 검토합니다.</div></div><button className="primary-btn" onClick={()=>notify("상단 Gemini AI 실자료 분석 영역에서 TXT·MD·CSV 파일 또는 텍스트를 분석할 수 있습니다.")}><Upload size={15}/> 보고서 업로드</button></div>
           <div className="stats">
             <div className="stat-card"><div className="stat-label">전체 운영계획</div><div className="stat-value">{counts.all}<span style={{fontSize:12,color:"#8995a5",marginLeft:5}}>건</span></div><div className="stat-note">3.1 특성표 작성 · 3.2 운용계획 수립</div><div className="stat-icon" style={{background:"#edf2ff",color:"#315efb"}}><FileText size={17}/></div></div>
             <div className="stat-card"><div className="stat-label">승인 권고</div><div className="stat-value">{counts.approved}<span style={{fontSize:12,color:"#8995a5",marginLeft:5}}>건</span></div><div className="stat-note">추가 확인사항 없음</div><div className="stat-icon" style={{background:"#eaf7f0",color:"#16845b"}}><CheckCircle2 size={17}/></div></div>
@@ -92,7 +92,7 @@ export default function Home() {
               {["설비 특성표 작성 완결성","설비 제원·운반능력 적합성","공정별 설비 수량·배치","설비 운용계획 적정성","점검·안전·유지관리 조건"].map((x,i)=><div className="side-stat" key={x}><span>{i+1}. {x}</span><span style={{color:"#315efb",fontWeight:700}}>검토 기준 <Check size={12} style={{verticalAlign:"middle"}}/></span></div>)}
             </div>
           </div>
-          <div style={{fontSize:10,color:"#9aa4b2",textAlign:"center",padding:"8px 0"}}>본 화면은 가상 데이터 기반 프로토타입이며, 실제 사내 시스템·LLM과 연결되어 있지 않습니다.</div>
+          <div style={{fontSize:10,color:"#9aa4b2",textAlign:"center",padding:"8px 0"}}>운영계획 목록은 가상 시연 데이터입니다. 상단 Gemini 분석 패널은 API 키 등록 시 실제 Gemini API를 호출합니다.</div>
         </> : <>
           <button className="back-btn" onClick={()=>setSelected(null)}><ArrowLeft size={14}/> 대시보드로 돌아가기</button>
           <div className="detail-header"><div><div className="eyebrow">PLAN REVIEW　/　{selected.id}</div><h1>{selected.title}</h1><div className="subtitle">{selected.plant} · {selected.line} · 2026.11.09 ~ 11.15 · 담당 {selected.owner}</div></div><StatusPill status={selected.status}/></div>
