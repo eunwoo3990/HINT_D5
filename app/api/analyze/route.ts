@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-const MODEL = "gemini-3.8-flash";
+const MODEL = "gemini-3.5-flash-lite";
 const MAX_INPUT_CHARS = 24000;
 
 export async function POST(request: NextRequest) {
@@ -62,7 +62,7 @@ ${body.content}`;
         },
         body: JSON.stringify({
           contents: [{ role: "user", parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 3000, thinkingConfig: { thinkingLevel: "low" } },
+          generationConfig: { maxOutputTokens: 3000 },
         }),
         cache: "no-store",
       }
