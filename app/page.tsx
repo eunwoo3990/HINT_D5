@@ -35,10 +35,10 @@ export default function Home() {
       <div className="sidebar-bottom"><div className="profile"><div className="avatar">관</div><div><div className="profile-name">운영관리 담당자</div><div className="profile-role">MATERIAL MANAGER</div></div></div></div>
     </aside>
     <main className="main">
-      <header className="topbar"><div className="crumb">MATERIAL OPS　/　<b>{selected ? "운영계획 상세 검토" : view}</b></div><div className="top-actions"><span className="env-pill">DEMO ENVIRONMENT</span><Bell size={17} color="#8793a3"/></div></header>
+      <header className="topbar"><div className="crumb">MATERIAL OPS　/　<b>{selected ? "자재운반 설비 상세 검토" : view}</b></div><div className="top-actions"><span className="env-pill">DEMO ENVIRONMENT</span><Bell size={17} color="#8793a3"/></div></header>
       <div className="content">
         {!selected ? <>
-          <div className="page-heading"><div><div className="eyebrow">AI-ASSISTED MATERIAL CONTROL</div><h1>운영계획 검토 대시보드</h1><div className="subtitle">공정별 자재 이동 흐름과 운반설비 특성표를 바탕으로 설비 배치·배차·운용계획의 적정성을 검토합니다.</div></div><button className="primary-btn" onClick={()=>notify("보고서 업로드는 다음 단계에서 파일 분석 API와 연결할 예정입니다.")}><Upload size={15}/> 보고서 업로드</button></div>
+          <div className="page-heading"><div><div className="eyebrow">AI-ASSISTED MATERIAL CONTROL</div><h1>자재운반 설비 운용계획 검토</h1><div className="subtitle">공정별 자재 이동 흐름과 운반설비 특성표를 바탕으로 설비 배치·배차·운용계획의 적정성을 검토합니다.</div></div><button className="primary-btn" onClick={()=>notify("보고서 업로드는 다음 단계에서 파일 분석 API와 연결할 예정입니다.")}><Upload size={15}/> 보고서 업로드</button></div>
           <div className="stats">
             <div className="stat-card"><div className="stat-label">전체 운영계획</div><div className="stat-value">{counts.all}<span style={{fontSize:12,color:"#8995a5",marginLeft:5}}>건</span></div><div className="stat-note">3.1 특성표 작성 · 3.2 운용계획 수립</div><div className="stat-icon" style={{background:"#edf2ff",color:"#315efb"}}><FileText size={17}/></div></div>
             <div className="stat-card"><div className="stat-label">승인 권고</div><div className="stat-value">{counts.approved}<span style={{fontSize:12,color:"#8995a5",marginLeft:5}}>건</span></div><div className="stat-note">추가 확인사항 없음</div><div className="stat-icon" style={{background:"#eaf7f0",color:"#16845b"}}><CheckCircle2 size={17}/></div></div>
@@ -46,17 +46,17 @@ export default function Home() {
             <div className="stat-card"><div className="stat-label">승인 불가</div><div className="stat-value">{counts.rejected}<span style={{fontSize:12,color:"#8995a5",marginLeft:5}}>건</span></div><div className="stat-note">핵심 기준 미충족</div><div className="stat-icon" style={{background:"#fff0f0",color:"#c24145"}}><XCircle size={17}/></div></div>
           </div>
           <div className="panel">
-            <div className="panel-head"><div><div className="panel-title">운영계획 검토 현황</div><div className="panel-sub">자재운반 설비 운영계획 10건 · 특성표와 운용계획 검토 근거 확인</div></div><div className="filters"><div style={{position:"relative"}}><Search size={14} style={{position:"absolute",left:10,top:10,color:"#9aa4b2"}}/><input className="search" style={{paddingLeft:30}} placeholder="계획명, 사업장 검색" value={search} onChange={e=>setSearch(e.target.value)}/></div><Filter size={14} color="#8b96a6"/>{["전체","승인","보류","불가"].map(f=><button key={f} className={`filter-btn ${filter===f?"selected":""}`} onClick={()=>setFilter(f)}>{f}</button>)}</div></div>
+            <div className="panel-head"><div><div className="panel-title">자재운반 설비 검토 현황</div><div className="panel-sub">자재운반 설비 자재운반 설비 운용계획 10건 · 특성표와 운용계획 검토 근거 확인</div></div><div className="filters"><div style={{position:"relative"}}><Search size={14} style={{position:"absolute",left:10,top:10,color:"#9aa4b2"}}/><input className="search" style={{paddingLeft:30}} placeholder="계획명, 사업장 검색" value={search} onChange={e=>setSearch(e.target.value)}/></div><Filter size={14} color="#8b96a6"/>{["전체","승인","보류","불가"].map(f=><button key={f} className={`filter-btn ${filter===f?"selected":""}`} onClick={()=>setFilter(f)}>{f}</button>)}</div></div>
             <div style={{overflowX:"auto"}}><table className="data-table"><thead><tr><th>운영계획</th><th>사업장 / 라인</th><th>운영 기간</th><th>일일 운반 요구량</th><th>AI 검토</th><th>리스크</th><th>최근 업데이트</th><th></th></tr></thead><tbody>
               {filtered.map(p=><tr key={p.id} onClick={()=>{setSelected(p);setExpanded("1");}}><td><div className="doc-title">{p.title}</div><div className="doc-id">{p.id} · {p.owner}</div></td><td>{p.plant}<div className="doc-id">{p.line}</div></td><td>11.09 ~ 11.15</td><td style={{fontWeight:700,color:"#344054"}}>{p.quantity.toLocaleString()}회/일</td><td><StatusPill status={p.status}/></td><td><span className={`priority ${p.risk==="높음"?"high":p.risk==="보통"?"medium":"low"}`}>● {p.risk}</span></td><td>{p.updated}</td><td><ArrowRight size={15} color="#9aa4b2"/></td></tr>)}
               {filtered.length===0 && <tr><td colSpan={8}><div className="empty">검색 결과가 없습니다.</div></td></tr>}
             </tbody></table></div>
           </div>
           <div className="two-col">
-            <div className="panel"><div className="panel-head"><div><div className="panel-title">우선 확인이 필요한 항목</div><div className="panel-sub">운영계획 검토 결과에서 추출한 주요 리스크</div></div><span className="env-pill">TOP RISKS</span></div>
+            <div className="panel"><div className="panel-head"><div><div className="panel-title">우선 조치가 필요한 설비</div><div className="panel-sub">특성표·운용계획 검토에서 확인된 주요 리스크</div></div><span className="env-pill">TOP RISKS</span></div>
               {plans.filter(p=>p.risk==="높음").slice(0,4).map(p=><div className="alert-row" key={p.id}><div className="alert-dot" style={{background:p.status==="불가"?"#c24145":"#d99b32"}}/><div style={{flex:1}}><div className="alert-title">{p.title}</div><div className="alert-desc">{p.summary}</div></div><button className="secondary-btn" style={{padding:"6px 9px",fontSize:10}} onClick={()=>setSelected(p)}>상세 확인</button></div>)}
             </div>
-            <div className="panel"><div className="panel-head"><div><div className="panel-title">AI 검토 기준</div><div className="panel-sub">5개 영역을 기준으로 교차 검증</div></div><ShieldCheck size={17} color="#315efb"/></div>
+            <div className="panel"><div className="panel-head"><div><div className="panel-title">3.1·3.2 검토 기준</div><div className="panel-sub">설비 특성표와 운용계획의 5개 영역 검토</div></div><ShieldCheck size={17} color="#315efb"/></div>
               {["설비 특성표 작성 완결성","설비 제원·운반능력 적합성","공정별 설비 수량·배치","설비 운용계획 적정성","점검·안전·유지관리 조건"].map((x,i)=><div className="side-stat" key={x}><span>{i+1}. {x}</span><span style={{color:"#315efb",fontWeight:700}}>검토 기준 <Check size={12} style={{verticalAlign:"middle"}}/></span></div>)}
             </div>
           </div>
